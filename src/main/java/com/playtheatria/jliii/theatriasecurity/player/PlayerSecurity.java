@@ -1,6 +1,6 @@
 package com.playtheatria.jliii.theatriasecurity.player;
 
-import com.playtheatria.jliii.theatriasecurity.utils.GeneralUtils;
+import com.playtheatria.jliii.generalutils.utils.Console;
 
 import java.util.UUID;
 
@@ -13,7 +13,7 @@ public class PlayerSecurity {
         this.playerUUID = playerUUID;
         this.isAuthenticated = isAuthenticated;
         this.isEnforced = isEnforced;
-        GeneralUtils.sendLog("PlayerSecurity object created for " + playerUUID.toString());
+        Console.sendLog("PlayerSecurity object created for " + playerUUID.toString());
     }
 
     public UUID getPlayerUUID() {

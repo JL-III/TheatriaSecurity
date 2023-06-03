@@ -1,10 +1,11 @@
 package com.playtheatria.jliii.theatriasecurity;
 
+import com.playtheatria.jliii.generalutils.enums.Status;
+import com.playtheatria.jliii.generalutils.utils.Console;
+import com.playtheatria.jliii.generalutils.utils.PlayerMessage;
 import com.playtheatria.jliii.theatriasecurity.commands.ConsoleCommand;
-import com.playtheatria.jliii.theatriasecurity.enums.Status;
 import com.playtheatria.jliii.theatriasecurity.player.PlayerSecurity;
 import com.playtheatria.jliii.theatriasecurity.token.TokenManager;
-import com.playtheatria.jliii.theatriasecurity.utils.GeneralUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
@@ -32,7 +33,7 @@ public final class TheatriaSecurity extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(this, this);
         playerSecurityList = new ArrayList<>();
         Objects.requireNonNull(Bukkit.getPluginCommand("ts")).setExecutor(new ConsoleCommand(tokenManager));
-        GeneralUtils.sendLog("TheatriaSecurity has been enabled.");
+        Console.sendLog("TheatriaSecurity has been enabled.");
     }
 
     @EventHandler
@@ -60,8 +61,8 @@ public final class TheatriaSecurity extends JavaPlugin implements Listener {
             if (x.getPlayerUUID() == event.getPlayer().getUniqueId()) {
                 if (x.getIsAuthenticated()) return;
                 event.setCancelled(true);
-                GeneralUtils.sendLog(event.getPlayer().getName() + " has attempted to run a command without being authenticated.");
-                GeneralUtils.sendResponse(event.getPlayer(), "You have not been authenticated.", Status.INVALID);
+                Console.sendLog(event.getPlayer().getName() + " has attempted to run a command without being authenticated.");
+                PlayerMessage.sendResponse(event.getPlayer(), "You have not been authenticated.", Status.INVALID);
             }
         });
     }
@@ -76,11 +77,11 @@ public final class TheatriaSecurity extends JavaPlugin implements Listener {
                 if (tokenManager.isTokenValid(PlainTextComponentSerializer.plainText().serialize(event.message()))) {
                     event.setCancelled(true);
                     x.setIsAuthenticated(true);
-                    GeneralUtils.sendResponse(event.getPlayer(), "You have been authenticated", Status.VALID);
+                    PlayerMessage.sendResponse(event.getPlayer(), "You have been authenticated", Status.VALID);
                 } else {
                     event.setCancelled(true);
-                    GeneralUtils.sendLog(event.getPlayer().getName() + " has attempted to run a command without being authenticated.");
-                    GeneralUtils.sendResponse(event.getPlayer(), "You have not been authenticated.", Status.INVALID);
+                    Console.sendLog(event.getPlayer().getName() + " has attempted to run a command without being authenticated.");
+                    PlayerMessage.sendResponse(event.getPlayer(), "You have not been authenticated.", Status.INVALID);
                 }
             }
         });
