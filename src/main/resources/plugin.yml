@@ -1,0 +1,13 @@
+name: TheatriaSecurity
+version: '${project.version}'
+main: com.playtheatria.jliii.theatriasecurity.TheatriaSecurity
+api-version: 1.19
+authors: [ JLIII ]
+description: A token prompt for Admins on Theatria.
+commands:
+    ts:
+        description: TheatriaSecurity Command
+        usage: /<command>
+        aliases: [ts]
+        permission: theatriasecurity.command.generate
+        permission-message: You do not have permission to use this command.
