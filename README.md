@@ -12,4 +12,4 @@ The underlying principle behind TheatriaSecurity is similar to two-factor authen
 
 ## Usage
 
-To use this plugin, a player will need access to the panel to retrieve the token. Once the player has the token, they can authenticate and use their permissions as normal. Tokens are designed to be one-time use, ensuring that even if a token is compromised, it cannot be used more than once.
+To use this plugin, a player will need access to the server files to retrieve the token. Once the player has the token, they can authenticate and use their permissions as normal. Tokens are designed to be one-time use, ensuring that even if a token is compromised, it cannot be used more than once.
