@@ -6,6 +6,7 @@ import org.bukkit.plugin.Plugin;
 public class TokenManager {
     private Plugin plugin;
     private int timestamp;
+    private boolean hasBeenConsumed;
 
     public TokenManager(Plugin plugin) {
         this.plugin = plugin;
@@ -13,11 +14,12 @@ public class TokenManager {
     }
 
     public boolean isTokenValid(String token) {
-        if (timestamp + 60 < (int) (System.currentTimeMillis() / 1000L)) {
+        if (timestamp + 60 < (int) (System.currentTimeMillis() / 1000L) || hasBeenConsumed) {
             GeneralUtils.sendLog("Token has expired.");
             return false;
         }
         if (token.equals(plugin.getConfig().get("token"))) {
+            hasBeenConsumed = true;
             return true;
         } else {
             GeneralUtils.sendLog("Token is invalid.");
@@ -34,6 +36,7 @@ public class TokenManager {
         plugin.saveConfig();
         GeneralUtils.sendLog("Token has been generated.");
         timestamp = (int) (System.currentTimeMillis() / 1000L);
+        hasBeenConsumed = false;
     }
 
 }
