@@ -1,10 +1,12 @@
 package com.playtheatria.jliii.theatriasecurity;
 
 import com.playtheatria.jliii.theatriasecurity.commands.ConsoleCommand;
+import com.playtheatria.jliii.theatriasecurity.enums.Status;
 import com.playtheatria.jliii.theatriasecurity.player.PlayerSecurity;
 import com.playtheatria.jliii.theatriasecurity.token.TokenManager;
 import com.playtheatria.jliii.theatriasecurity.utils.GeneralUtils;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -32,28 +34,19 @@ public final class TheatriaSecurity extends JavaPlugin implements Listener {
         GeneralUtils.sendLog("TheatriaSecurity has been enabled.");
     }
 
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
-    }
-
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        playerSecurityList.add(new PlayerSecurity(player.getUniqueId(), player.hasPermission("theatria.security.token.enforce"), false));
-
+        addPlayerIfNotExists(event.getPlayer());
     }
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         addPlayerIfNotExists(event.getPlayer());
         playerSecurityList.forEach(x -> {
+            if (!x.getIsEnforced()) return;
             if (x.getPlayerUUID() == event.getPlayer().getUniqueId()) {
-                if (x.getIsEnforced()) {
-                    if (!x.getIsAuthenticated()) {
-                        event.setCancelled(true);
-                    }
-                }
+                if (x.getIsAuthenticated()) return;
+                event.setCancelled(true);
             }
         });
     }
@@ -62,14 +55,12 @@ public final class TheatriaSecurity extends JavaPlugin implements Listener {
     public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
         addPlayerIfNotExists(event.getPlayer());
         playerSecurityList.forEach(x -> {
+            if (!x.getIsEnforced()) return;
             if (x.getPlayerUUID() == event.getPlayer().getUniqueId()) {
-                if (x.getIsEnforced()) {
-                    if (!x.getIsAuthenticated()) {
-                        event.setCancelled(true);
-                        event.getPlayer().sendMessage("You have not been authenticated.");
-                        GeneralUtils.sendLog(event.getPlayer().getName() + " has attempted to run a command without being authenticated.");
-                    }
-                }
+                if (x.getIsAuthenticated()) return;
+                event.setCancelled(true);
+                GeneralUtils.sendLog(event.getPlayer().getName() + " has attempted to run a command without being authenticated.");
+                GeneralUtils.sendResponse(event.getPlayer(), "You have not been authenticated.", Status.INVALID);
             }
         });
     }
@@ -78,21 +69,17 @@ public final class TheatriaSecurity extends JavaPlugin implements Listener {
     public void onPlayerChatEvent(AsyncChatEvent event) {
         addPlayerIfNotExists(event.getPlayer());
         playerSecurityList.forEach(x -> {
+            if (!x.getIsEnforced()) return;
             if (x.getPlayerUUID() == event.getPlayer().getUniqueId()) {
-                if (x.getIsEnforced()) {
-                    if (x.getIsAuthenticated()) {
-                        return;
-                    }
-                    if (tokenManager.isTokenValid(PlainTextComponentSerializer.plainText().serialize(event.message()))) {
-                        x.setIsAuthenticated(true);
-                        event.getPlayer().sendMessage("You have been authenticated.");
-                        event.setCancelled(true);
-                    } else {
-                        event.getPlayer().sendMessage("You have not been authenticated.");
-                        event.setCancelled(true);
-                        GeneralUtils.sendLog(event.getPlayer().getName() + " has attempted to run a command without being authenticated.");
-                    }
-
+                if (x.getIsAuthenticated()) return;
+                if (tokenManager.isTokenValid(PlainTextComponentSerializer.plainText().serialize(event.message()))) {
+                    event.setCancelled(true);
+                    x.setIsAuthenticated(true);
+                    GeneralUtils.sendResponse(event.getPlayer(), "You have been authenticated", Status.VALID);
+                } else {
+                    event.setCancelled(true);
+                    GeneralUtils.sendLog(event.getPlayer().getName() + " has attempted to run a command without being authenticated.");
+                    GeneralUtils.sendResponse(event.getPlayer(), "You have not been authenticated.", Status.INVALID);
                 }
             }
         });
