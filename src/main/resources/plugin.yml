@@ -4,6 +4,7 @@ main: com.playtheatria.jliii.theatriasecurity.TheatriaSecurity
 api-version: 1.19
 authors: [ JLIII ]
 description: A token prompt for Admins on Theatria.
+depend: [GeneralUtils]
 commands:
     ts:
         description: TheatriaSecurity Command

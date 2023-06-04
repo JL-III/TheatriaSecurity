@@ -31,8 +31,8 @@ public final class TheatriaSecurity extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        customLogger = new CustomLogger(getName(), NamedTextColor.DARK_RED, NamedTextColor.RED);
         tokenManager = new TokenManager(this, customLogger);
-        customLogger = new CustomLogger(getName(), NamedTextColor.RED, NamedTextColor.DARK_RED);
         Bukkit.getPluginManager().registerEvents(this, this);
         playerSecurityList = new ArrayList<>();
         Objects.requireNonNull(Bukkit.getPluginCommand("ts")).setExecutor(new ConsoleCommand(tokenManager));
@@ -65,7 +65,7 @@ public final class TheatriaSecurity extends JavaPlugin implements Listener {
                 if (x.getIsAuthenticated()) return;
                 event.setCancelled(true);
                 customLogger.sendLog(event.getPlayer().getName() + " has attempted to run a command without being authenticated.");
-                PlayerMessage.sendResponse(event.getPlayer(), "You have not been authenticated.", Status.INVALID);
+                PlayerMessage.sendActionBar(event.getPlayer(), "You have not been authenticated.", Status.INVALID);
             }
         });
     }
@@ -80,11 +80,11 @@ public final class TheatriaSecurity extends JavaPlugin implements Listener {
                 if (tokenManager.isTokenValid(PlainTextComponentSerializer.plainText().serialize(event.message()))) {
                     event.setCancelled(true);
                     x.setIsAuthenticated(true);
-                    PlayerMessage.sendResponse(event.getPlayer(), "You have been authenticated", Status.VALID);
+                    PlayerMessage.sendActionBar(event.getPlayer(), "You have been authenticated", Status.VALID);
                 } else {
                     event.setCancelled(true);
                     customLogger.sendLog(event.getPlayer().getName() + " has attempted to run a command without being authenticated.");
-                    PlayerMessage.sendResponse(event.getPlayer(), "You have not been authenticated.", Status.INVALID);
+                    PlayerMessage.sendActionBar(event.getPlayer(), "You have not been authenticated.", Status.INVALID);
                 }
             }
         });
