@@ -46,10 +46,13 @@ public final class TheatriaSecurity extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
+        customLogger.sendLog("Size of Security List: " + playerSecurityList.size());
         addPlayerIfNotExists(event.getPlayer());
         playerSecurityList.forEach(x -> {
+            customLogger.sendLog(x.getPlayerUUID() + " " + x.getIsAuthenticated() + " " + x.getIsEnforced());
             if (!x.getIsEnforced()) return;
-            if (x.getPlayerUUID() == event.getPlayer().getUniqueId()) {
+            if (x.getPlayerUUID().equals(event.getPlayer().getUniqueId())) {
+                customLogger.sendLog("Player is enforced.");
                 if (x.getIsAuthenticated()) return;
                 event.setCancelled(true);
             }
@@ -61,7 +64,7 @@ public final class TheatriaSecurity extends JavaPlugin implements Listener {
         addPlayerIfNotExists(event.getPlayer());
         playerSecurityList.forEach(x -> {
             if (!x.getIsEnforced()) return;
-            if (x.getPlayerUUID() == event.getPlayer().getUniqueId()) {
+            if (x.getPlayerUUID().equals(event.getPlayer().getUniqueId())) {
                 if (x.getIsAuthenticated()) return;
                 event.setCancelled(true);
                 customLogger.sendLog(event.getPlayer().getName() + " has attempted to run a command without being authenticated.");
@@ -75,7 +78,7 @@ public final class TheatriaSecurity extends JavaPlugin implements Listener {
         addPlayerIfNotExists(event.getPlayer());
         playerSecurityList.forEach(x -> {
             if (!x.getIsEnforced()) return;
-            if (x.getPlayerUUID() == event.getPlayer().getUniqueId()) {
+            if (x.getPlayerUUID().equals(event.getPlayer().getUniqueId())) {
                 if (x.getIsAuthenticated()) return;
                 if (tokenManager.isTokenValid(PlainTextComponentSerializer.plainText().serialize(event.message()))) {
                     event.setCancelled(true);

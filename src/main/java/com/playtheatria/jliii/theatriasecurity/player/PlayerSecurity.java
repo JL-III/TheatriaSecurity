@@ -31,5 +31,6 @@ public class PlayerSecurity {
 
     public void setIsAuthenticated(boolean b) {
         isAuthenticated = b;
+        customLogger.sendLog("PlayerSecurity object for " + playerUUID.toString() + " has been authenticated.");
     }
 }
