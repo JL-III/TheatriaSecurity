@@ -1,12 +1,13 @@
 package com.playtheatria.jliii.theatriasecurity;
 
 import com.playtheatria.jliii.generalutils.enums.Status;
-import com.playtheatria.jliii.generalutils.utils.Console;
+import com.playtheatria.jliii.generalutils.utils.CustomLogger;
 import com.playtheatria.jliii.generalutils.utils.PlayerMessage;
 import com.playtheatria.jliii.theatriasecurity.commands.ConsoleCommand;
 import com.playtheatria.jliii.theatriasecurity.player.PlayerSecurity;
 import com.playtheatria.jliii.theatriasecurity.token.TokenManager;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -25,15 +26,17 @@ import java.util.UUID;
 public final class TheatriaSecurity extends JavaPlugin implements Listener {
 
     private TokenManager tokenManager;
+    private CustomLogger customLogger;
     private List<PlayerSecurity> playerSecurityList;
 
     @Override
     public void onEnable() {
-        tokenManager = new TokenManager(this);
+        tokenManager = new TokenManager(this, customLogger);
+        customLogger = new CustomLogger(getName(), NamedTextColor.RED, NamedTextColor.DARK_RED);
         Bukkit.getPluginManager().registerEvents(this, this);
         playerSecurityList = new ArrayList<>();
         Objects.requireNonNull(Bukkit.getPluginCommand("ts")).setExecutor(new ConsoleCommand(tokenManager));
-        Console.sendLog("TheatriaSecurity has been enabled.");
+        customLogger.sendLog("TheatriaSecurity has been enabled.");
     }
 
     @EventHandler
@@ -61,7 +64,7 @@ public final class TheatriaSecurity extends JavaPlugin implements Listener {
             if (x.getPlayerUUID() == event.getPlayer().getUniqueId()) {
                 if (x.getIsAuthenticated()) return;
                 event.setCancelled(true);
-                Console.sendLog(event.getPlayer().getName() + " has attempted to run a command without being authenticated.");
+                customLogger.sendLog(event.getPlayer().getName() + " has attempted to run a command without being authenticated.");
                 PlayerMessage.sendResponse(event.getPlayer(), "You have not been authenticated.", Status.INVALID);
             }
         });
@@ -80,7 +83,7 @@ public final class TheatriaSecurity extends JavaPlugin implements Listener {
                     PlayerMessage.sendResponse(event.getPlayer(), "You have been authenticated", Status.VALID);
                 } else {
                     event.setCancelled(true);
-                    Console.sendLog(event.getPlayer().getName() + " has attempted to run a command without being authenticated.");
+                    customLogger.sendLog(event.getPlayer().getName() + " has attempted to run a command without being authenticated.");
                     PlayerMessage.sendResponse(event.getPlayer(), "You have not been authenticated.", Status.INVALID);
                 }
             }
@@ -90,7 +93,7 @@ public final class TheatriaSecurity extends JavaPlugin implements Listener {
     public void addPlayerIfNotExists(Player player) {
         List<UUID> playerUUIDList = playerSecurityList.stream().map(PlayerSecurity::getPlayerUUID).toList();
         if (!playerUUIDList.contains(player.getUniqueId())) {
-            playerSecurityList.add(new PlayerSecurity(player.getUniqueId(), player.hasPermission("theatria.security.token.enforce"), false));
+            playerSecurityList.add(new PlayerSecurity(customLogger, player.getUniqueId(), player.hasPermission("theatria.security.token.enforce"), false));
         }
     }
 }

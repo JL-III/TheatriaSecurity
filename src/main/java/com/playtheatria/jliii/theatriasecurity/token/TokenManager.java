@@ -1,28 +1,30 @@
 package com.playtheatria.jliii.theatriasecurity.token;
 
-import com.playtheatria.jliii.generalutils.utils.Console;
+import com.playtheatria.jliii.generalutils.utils.CustomLogger;
 import org.bukkit.plugin.Plugin;
 
 public class TokenManager {
     private Plugin plugin;
+    private CustomLogger customLogger;
     private int timestamp;
     private boolean hasBeenConsumed;
 
-    public TokenManager(Plugin plugin) {
+    public TokenManager(Plugin plugin, CustomLogger customLogger) {
         this.plugin = plugin;
+        this.customLogger = customLogger;
         generateToken();
     }
 
     public boolean isTokenValid(String token) {
         if (timestamp + 60 < (int) (System.currentTimeMillis() / 1000L) || hasBeenConsumed) {
-            Console.sendLog("Token has expired.");
+            customLogger.sendLog("Token has expired.");
             return false;
         }
         if (token.equals(plugin.getConfig().get("token"))) {
             hasBeenConsumed = true;
             return true;
         } else {
-            Console.sendLog("Token is invalid.");
+            customLogger.sendLog("Token is invalid.");
             return false;
         }
     }
@@ -34,7 +36,7 @@ public class TokenManager {
         }
         plugin.getConfig().set("token", token.toString());
         plugin.saveConfig();
-        Console.sendLog("Token has been generated.");
+        customLogger.sendLog("Token has been generated.");
         timestamp = (int) (System.currentTimeMillis() / 1000L);
         hasBeenConsumed = false;
     }
